@@ -1,0 +1,19 @@
+{
+  "title": {
+    "ok": true,
+    "value": "Ledger - Minimal Personal Expense Tracker"
+  },
+  "pathname": {
+    "ok": true,
+    "value": "/login/"
+  },
+  "bodyText": {
+    "ok": true,
+    "value": "Ledger Minimal personal expense tracker for laptop, mobile & tablet. Email Password Sign In with Email OR CONTINUE WITH Google SSO Don't have an account? Sign Up"
+  },
+  "bridgeType": {
+    "ok": true,
+    "value": "object"
+  },
+  "errors": []
+}
