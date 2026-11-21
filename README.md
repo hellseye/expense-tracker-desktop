@@ -40,11 +40,20 @@ Step — IPC communication layer (done):
 
 Step — Transaction CRUD (done):
 
-- Add, edit and delete income/expense transactions from a simple form in
-  `Home.jsx` (temporary test UI, not the final design).
+- Add, edit and delete income/expense transactions through IPC.
 - All queries are parameterized and stay in the main process.
 - Missing/invalid ids and bad category ids are rejected with clear errors.
 - Verified: changes persist across an Electron restart.
+
+Step — Transaction Management UI (done):
+
+- `src/pages/Transactions.jsx` is the app's screen: heading, Add Transaction
+  button, table (description, category, date, type, amount, edit/delete).
+- Add/edit form in a modal (`components/Modal.jsx` +
+  `components/TransactionForm.jsx`), categories loaded from SQLite.
+- Dark rounded-card design with purple accent, recreated from the reference
+  in plain CSS. Empty-state message when there are no transactions.
+- The old placeholder `Home.jsx` was removed; `App.jsx` renders Transactions.
 
 ## Files
 
@@ -62,10 +71,13 @@ expense-tracker-desktop/
 │       └── databaseHandlers.js  ipcMain.handle: category reads + transaction CRUD
 ├── src/
 │   ├── assets/          images and icons (icon.svg = app icon / favicon)
+│   ├── components/      reusable UI pieces
+│   │   ├── Modal.jsx    modal shell (backdrop + card + close)
+│   │   └── TransactionForm.jsx  add/edit form (amount, type, category, ...)
 │   ├── pages/           one file per screen
-│   │   └── Home.jsx     placeholder screen + transaction CRUD test form
+│   │   └── Transactions.jsx  transaction table + add/edit/delete
 │   ├── styles/
-│   │   └── index.css    global styles
+│   │   └── index.css    global styles (dark theme, table, modal, form)
 │   ├── App.jsx          root component, renders the current page
 │   └── main.jsx         React entry point
 ├── scripts/
@@ -126,7 +138,7 @@ category, and a category that has transactions cannot be deleted.
 Data flows one way at a time, request → response:
 
 ```
-React (Home.jsx)
+React (Transactions.jsx)
   → window.api.getCategories()            preload: contextBridge
   → ipcRenderer.invoke('get-categories')  preload: the only place IPC is used
   → ipcMain.handle('get-categories')      main: databaseHandlers.js
@@ -168,7 +180,7 @@ Safety rules:
   the Vite URL; a packaged app loads `dist/index.html`.
 - `electron/preload.js` runs before the page and uses `contextBridge` to
   expose `window.desktop` (runtime info) and `window.api` (database reads +
-  transaction CRUD). `src/pages/Home.jsx` uses both.
+  transaction CRUD). `src/pages/Transactions.jsx` uses both.
 
 Security basics kept on purpose: `contextIsolation: true` and
 `nodeIntegration: false`, so the web page cannot use Node.js directly.
@@ -191,11 +203,10 @@ router, Tailwind, icon or chart libraries until a step genuinely needs them.
 ## Next steps
 
 1. Category CRUD (add/edit/delete categories) over the same IPC pattern.
-2. UI: layout (sidebar + navbar), then the screens one by one
-   (Categories, Transactions, Dashboard, Analytics, Settings), replacing
-   the temporary Home.jsx test form.
-3. CSV export.
-4. Package the app for macOS.
+2. App layout (sidebar + navbar) and navigation between screens.
+3. Remaining screens: Dashboard, Categories, Analytics, Settings.
+4. CSV export.
+5. Package the app for macOS.
 
 ## Ground rules
 

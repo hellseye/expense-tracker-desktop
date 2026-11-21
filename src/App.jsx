@@ -1,5 +1,5 @@
-import Home from './pages/Home.jsx';
+import Transactions from './pages/Transactions.jsx';
 
 export default function App() {
-  return <Home />;
+  return <Transactions />;
 }
