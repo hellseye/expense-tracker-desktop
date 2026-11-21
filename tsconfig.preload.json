@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.electron.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "rootDir": "electron"
-  },
-  "include": ["electron/preload/**/*.ts", "electron/shared/**/*.ts"],
-  "exclude": ["node_modules", "dist-electron", "reference"]
-}
