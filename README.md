@@ -36,9 +36,15 @@ Step — SQLite database layer (done):
 Step — IPC communication layer (done):
 
 - React can now read from SQLite through a safe IPC bridge.
-- Two read functions for testing: `getCategories()` and `getTransactions()`.
-- `Home.jsx` displays both lists live from the database.
-- **No CRUD (create/update/delete) yet** — that is the next step.
+- `Home.jsx` displays categories and transactions live from the database.
+
+Step — Transaction CRUD (done):
+
+- Add, edit and delete income/expense transactions from a simple form in
+  `Home.jsx` (temporary test UI, not the final design).
+- All queries are parameterized and stay in the main process.
+- Missing/invalid ids and bad category ids are rejected with clear errors.
+- Verified: changes persist across an Electron restart.
 
 ## Files
 
@@ -53,11 +59,11 @@ expense-tracker-desktop/
 │   │   ├── schema.js      creates tables and indexes (IF NOT EXISTS)
 │   │   └── seed.js        inserts the 6 default categories when empty
 │   └── handlers/
-│       └── databaseHandlers.js  ipcMain.handle for the two read channels
+│       └── databaseHandlers.js  ipcMain.handle: category reads + transaction CRUD
 ├── src/
 │   ├── assets/          images and icons (icon.svg = app icon / favicon)
 │   ├── pages/           one file per screen
-│   │   └── Home.jsx     placeholder screen + live DB lists (IPC test)
+│   │   └── Home.jsx     placeholder screen + transaction CRUD test form
 │   ├── styles/
 │   │   └── index.css    global styles
 │   ├── App.jsx          root component, renders the current page
@@ -128,12 +134,20 @@ React (Home.jsx)
   → rows returned as a Promise result, React renders them
 ```
 
-Channels (both read-only for now):
+Channels:
 
-| Channel            | Preload function          | Returns                    |
-| ------------------ | ------------------------- | -------------------------- |
-| `get-categories`   | `window.api.getCategories()`   | all categories, by id |
-| `get-transactions` | `window.api.getTransactions()` | all transactions, newest first |
+| Channel              | Preload function                      | What it does                     |
+| -------------------- | ------------------------------------- | -------------------------------- |
+| `get-categories`     | `window.api.getCategories()`          | all categories, by id            |
+| `get-transactions`   | `window.api.getTransactions()`        | all transactions, newest first   |
+| `add-transaction`    | `window.api.addTransaction(data)`     | INSERT, returns the new id       |
+| `update-transaction` | `window.api.updateTransaction(data)`  | UPDATE by id, errors if missing  |
+| `delete-transaction` | `window.api.deleteTransaction(id)`    | DELETE by id, errors if missing  |
+
+Transaction data uses camelCase in JavaScript (`categoryId`, `paymentMethod`)
+and maps to the snake_case columns in SQL. The form's "Description" field is
+the `title` column. There is no account id in the schema — `payment_method`
+(CASH, CREDIT_CARD, DEBIT_CARD, BANK_TRANSFER, UPI, OTHER) covers it.
 
 Safety rules:
 
@@ -142,7 +156,8 @@ Safety rules:
 - The renderer cannot call arbitrary channels; it can only use what preload
   exposes.
 - All SQL stays in `electron/handlers/databaseHandlers.js` (main process).
-- CRUD channels will be added the same way in the next step.
+- Errors (e.g. "Transaction not found", foreign-key violations) are thrown
+  in the handler; `invoke` rejects and React shows the message.
 
 ## How it works
 
@@ -152,8 +167,8 @@ Safety rules:
   creates the window. While developing (`app.isPackaged` is false) it loads
   the Vite URL; a packaged app loads `dist/index.html`.
 - `electron/preload.js` runs before the page and uses `contextBridge` to
-  expose `window.desktop` (runtime info) and `window.api` (database reads).
-  `src/pages/Home.jsx` displays both.
+  expose `window.desktop` (runtime info) and `window.api` (database reads +
+  transaction CRUD). `src/pages/Home.jsx` uses both.
 
 Security basics kept on purpose: `contextIsolation: true` and
 `nodeIntegration: false`, so the web page cannot use Node.js directly.
@@ -175,10 +190,10 @@ router, Tailwind, icon or chart libraries until a step genuinely needs them.
 
 ## Next steps
 
-1. CRUD over IPC: add/edit/delete categories and transactions (main-process
-   handlers + preload functions + simple forms).
+1. Category CRUD (add/edit/delete categories) over the same IPC pattern.
 2. UI: layout (sidebar + navbar), then the screens one by one
-   (Categories, Transactions, Dashboard, Analytics, Settings).
+   (Categories, Transactions, Dashboard, Analytics, Settings), replacing
+   the temporary Home.jsx test form.
 3. CSV export.
 4. Package the app for macOS.
 

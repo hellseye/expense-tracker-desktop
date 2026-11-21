@@ -59,3 +59,52 @@ body {
   border-radius: 50%;
   margin-right: 0.5rem;
 }
+
+.crud-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.75rem auto;
+  max-width: 480px;
+  text-align: left;
+}
+
+.crud-form input,
+.crud-form select {
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #2a2f3a;
+  background: #161922;
+  color: #e6e8ee;
+  font-size: 0.85rem;
+}
+
+.crud-form button {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: #6366f1;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.crud-form .full {
+  grid-column: 1 / -1;
+}
+
+.error {
+  color: #f87171;
+  font-size: 0.85rem;
+}
+
+.data button {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #2a2f3a;
+  background: #161922;
+  color: #9aa3b2;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
