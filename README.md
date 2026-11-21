@@ -55,6 +55,20 @@ Step — Transaction Management UI (done):
   in plain CSS. Empty-state message when there are no transactions.
 - The old placeholder `Home.jsx` was removed; `App.jsx` renders Transactions.
 
+Step — Dashboard (done):
+
+- `src/pages/Dashboard.jsx`: Total Balance / Total Income / Total Expenses
+  stat cards, monthly income-vs-expense bar chart (last 6 months),
+  spending-by-category breakdown with percentage bars, income vs expense
+  ratio bar, and the 5 most recent transactions with a View All link.
+- All figures are computed from real SQLite data fetched through the
+  existing IPC reads — no new channels, no hardcoded numbers, no chart
+  library (charts are plain CSS bars).
+- Simple top navigation in `App.jsx` switches between Dashboard and
+  Transactions; zero states when the database is empty.
+- Verified: totals, add/edit/delete updates, zero states, and correctness
+  after an Electron restart.
+
 ## Files
 
 ```
@@ -73,12 +87,14 @@ expense-tracker-desktop/
 │   ├── assets/          images and icons (icon.svg = app icon / favicon)
 │   ├── components/      reusable UI pieces
 │   │   ├── Modal.jsx    modal shell (backdrop + card + close)
+│   │   ├── StatCard.jsx dashboard stat card (label, value, subtitle)
 │   │   └── TransactionForm.jsx  add/edit form (amount, type, category, ...)
 │   ├── pages/           one file per screen
+│   │   ├── Dashboard.jsx     totals, charts, breakdown, recent transactions
 │   │   └── Transactions.jsx  transaction table + add/edit/delete
 │   ├── styles/
-│   │   └── index.css    global styles (dark theme, table, modal, form)
-│   ├── App.jsx          root component, renders the current page
+│   │   └── index.css    global styles (dark theme, table, modal, form, charts)
+│   ├── App.jsx          top nav + page switching (Dashboard / Transactions)
 │   └── main.jsx         React entry point
 ├── scripts/
 │   └── dev.js           starts Vite, then starts Electron
@@ -203,8 +219,8 @@ router, Tailwind, icon or chart libraries until a step genuinely needs them.
 ## Next steps
 
 1. Category CRUD (add/edit/delete categories) over the same IPC pattern.
-2. App layout (sidebar + navbar) and navigation between screens.
-3. Remaining screens: Dashboard, Categories, Analytics, Settings.
+2. Full app layout (sidebar like the reference) replacing the simple top nav.
+3. Remaining screens: Categories, Analytics, Settings.
 4. CSV export.
 5. Package the app for macOS.
 
