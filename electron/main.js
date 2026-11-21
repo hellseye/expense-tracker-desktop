@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { createTables } = require('./database/schema');
 const { seedCategories } = require('./database/seed');
+const { registerDatabaseHandlers } = require('./handlers/databaseHandlers');
 
 // userData folder name: ~/Library/Application Support/ExpenseTracker
 app.setName('ExpenseTracker');
@@ -27,6 +28,7 @@ function createWindow() {
 app.whenReady().then(() => {
   createTables();
   seedCategories();
+  registerDatabaseHandlers();
   createWindow();
 });
 

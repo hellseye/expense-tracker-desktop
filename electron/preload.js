@@ -1,4 +1,4 @@
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('desktop', {
   platform: process.platform,
@@ -7,4 +7,9 @@ contextBridge.exposeInMainWorld('desktop', {
     chrome: process.versions.chrome,
     node: process.versions.node,
   },
+});
+
+contextBridge.exposeInMainWorld('api', {
+  getCategories: () => ipcRenderer.invoke('get-categories'),
+  getTransactions: () => ipcRenderer.invoke('get-transactions'),
 });

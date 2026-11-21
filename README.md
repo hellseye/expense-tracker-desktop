@@ -32,7 +32,13 @@ Step — SQLite database layer (done):
 - Database created automatically on startup in the user-data folder.
 - Three tables (`categories`, `transactions`, `settings`), foreign keys and
   indexes in place, six default categories seeded once.
-- **No CRUD operations yet** — that is the next step. No feature UI yet.
+
+Step — IPC communication layer (done):
+
+- React can now read from SQLite through a safe IPC bridge.
+- Two read functions for testing: `getCategories()` and `getTransactions()`.
+- `Home.jsx` displays both lists live from the database.
+- **No CRUD (create/update/delete) yet** — that is the next step.
 
 ## Files
 
@@ -40,16 +46,18 @@ Step — SQLite database layer (done):
 expense-tracker-desktop/
 ├── 01_reference/        original project (read-only, git-ignored)
 ├── electron/
-│   ├── main.js          app entry: initializes the database, opens the window
-│   ├── preload.js       bridge: exposes window.desktop to the page
-│   └── database/
-│       ├── connection.js  opens the SQLite file, sets WAL + foreign keys
-│       ├── schema.js      creates tables and indexes (IF NOT EXISTS)
-│       └── seed.js        inserts the 6 default categories when empty
+│   ├── main.js          app entry: DB init, IPC handlers, window
+│   ├── preload.js       bridge: window.desktop + window.api (no raw IPC)
+│   ├── database/
+│   │   ├── connection.js  opens the SQLite file, sets WAL + foreign keys
+│   │   ├── schema.js      creates tables and indexes (IF NOT EXISTS)
+│   │   └── seed.js        inserts the 6 default categories when empty
+│   └── handlers/
+│       └── databaseHandlers.js  ipcMain.handle for the two read channels
 ├── src/
 │   ├── assets/          images and icons (icon.svg = app icon / favicon)
 │   ├── pages/           one file per screen
-│   │   └── Home.jsx     current placeholder screen
+│   │   └── Home.jsx     placeholder screen + live DB lists (IPC test)
 │   ├── styles/
 │   │   └── index.css    global styles
 │   ├── App.jsx          root component, renders the current page
@@ -87,12 +95,12 @@ npm run build    # builds the React app into dist/
   (Electron's `app.getPath('userData')`). User data lives outside the project
   and survives app updates and packaging. The app name is set with
   `app.setName('ExpenseTracker')` in `electron/main.js`.
-- **Initialization:** when Electron is ready, `main.js` calls `createTables()`
-  then `seedCategories()`, then opens the window. Every statement uses
-  `IF NOT EXISTS` / count checks, so restarting never duplicates anything.
-- **Rules:** all database code runs in the Electron main process only. React
-  never touches SQLite, and the connection is not exposed through preload.
-  Future CRUD will go through IPC handlers in main.
+- **Initialization:** when Electron is ready, `main.js` calls `createTables()`,
+  `seedCategories()`, `registerDatabaseHandlers()`, then opens the window.
+  Every statement uses `IF NOT EXISTS` / count checks, so restarting never
+  duplicates anything.
+- **Rules:** all SQLite queries run in the Electron main process only. React
+  never touches SQLite, and the connection is never exposed through preload.
 
 Tables:
 
@@ -107,16 +115,45 @@ filtering and dashboard totals. Foreign key enforcement is ON
 (`PRAGMA foreign_keys = ON`), so a transaction must reference a real
 category, and a category that has transactions cannot be deleted.
 
+## IPC communication
+
+Data flows one way at a time, request → response:
+
+```
+React (Home.jsx)
+  → window.api.getCategories()            preload: contextBridge
+  → ipcRenderer.invoke('get-categories')  preload: the only place IPC is used
+  → ipcMain.handle('get-categories')      main: databaseHandlers.js
+  → db.prepare('SELECT ...').all()        main: better-sqlite3
+  → rows returned as a Promise result, React renders them
+```
+
+Channels (both read-only for now):
+
+| Channel            | Preload function          | Returns                    |
+| ------------------ | ------------------------- | -------------------------- |
+| `get-categories`   | `window.api.getCategories()`   | all categories, by id |
+| `get-transactions` | `window.api.getTransactions()` | all transactions, newest first |
+
+Safety rules:
+
+- `contextBridge` exposes only these named functions — never `ipcRenderer`
+  itself and never the database connection.
+- The renderer cannot call arbitrary channels; it can only use what preload
+  exposes.
+- All SQL stays in `electron/handlers/databaseHandlers.js` (main process).
+- CRUD channels will be added the same way in the next step.
+
 ## How it works
 
 - `npm run dev` runs `scripts/dev.js`: it starts the Vite dev server on
   http://localhost:5173, then launches Electron.
-- `electron/main.js` initializes the database, then creates the window.
-  While developing (`app.isPackaged` is false) it loads the Vite URL; a
-  packaged app loads `dist/index.html`.
+- `electron/main.js` initializes the database, registers IPC handlers, then
+  creates the window. While developing (`app.isPackaged` is false) it loads
+  the Vite URL; a packaged app loads `dist/index.html`.
 - `electron/preload.js` runs before the page and uses `contextBridge` to
-  expose `window.desktop` (platform + Electron/Chrome/Node versions).
-  `src/pages/Home.jsx` displays it.
+  expose `window.desktop` (runtime info) and `window.api` (database reads).
+  `src/pages/Home.jsx` displays both.
 
 Security basics kept on purpose: `contextIsolation: true` and
 `nodeIntegration: false`, so the web page cannot use Node.js directly.
@@ -138,8 +175,8 @@ router, Tailwind, icon or chart libraries until a step genuinely needs them.
 
 ## Next steps
 
-1. IPC bridge + CRUD: categories and transactions, main-process handlers
-   exposed through a small preload API.
+1. CRUD over IPC: add/edit/delete categories and transactions (main-process
+   handlers + preload functions + simple forms).
 2. UI: layout (sidebar + navbar), then the screens one by one
    (Categories, Transactions, Dashboard, Analytics, Settings).
 3. CSV export.

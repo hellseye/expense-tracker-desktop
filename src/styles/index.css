@@ -36,3 +36,26 @@ body {
   font-size: 0.85rem;
   color: #6b7280;
 }
+
+.shell h2 {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 1rem;
+  color: #9aa3b2;
+}
+
+.data {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
