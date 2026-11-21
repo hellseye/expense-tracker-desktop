@@ -528,7 +528,8 @@ body {
 }
 
 .btn-small:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
+  color: #71717a;
   cursor: not-allowed;
 }
 
@@ -569,4 +570,21 @@ body {
 
 .color-picker button.picked {
   border-color: #fafafa;
+}
+
+.account-balance {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 2px 0;
+}
+
+.negative-balance {
+  color: #f87171;
+}
+
+.badge.cash,
+.badge.bank,
+.badge.wallet {
+  background: #27272a;
+  color: #d4d4d8;
 }

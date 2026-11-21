@@ -5,6 +5,7 @@ import TransactionForm from '../components/TransactionForm.jsx';
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState('');
@@ -12,6 +13,7 @@ export default function Transactions() {
   function loadData() {
     window.api.getTransactions().then(setTransactions).catch((err) => setError(err.message));
     window.api.getCategories().then(setCategories);
+    window.api.getAccounts().then(setAccounts);
   }
 
   useEffect(loadData, []);
@@ -134,6 +136,7 @@ export default function Transactions() {
         <Modal title={editing ? 'Edit Transaction' : 'Add Transaction'} onClose={closeForm}>
           <TransactionForm
             categories={categories}
+            accounts={accounts}
             transaction={editing}
             onSave={handleSave}
             onCancel={closeForm}

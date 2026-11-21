@@ -1,10 +1,11 @@
 import { useState } from 'react';
 
-export default function TransactionForm({ categories, transaction, onSave, onCancel }) {
+export default function TransactionForm({ categories, accounts, transaction, onSave, onCancel }) {
   const [form, setForm] = useState({
     amount: transaction ? String(transaction.amount) : '',
     type: transaction ? transaction.type : 'expense',
     categoryId: transaction ? String(transaction.category_id) : '',
+    accountId: transaction && transaction.account_id ? String(transaction.account_id) : '',
     title: transaction ? transaction.title : '',
     date: transaction ? transaction.date : new Date().toISOString().slice(0, 10),
   });
@@ -21,6 +22,7 @@ export default function TransactionForm({ categories, transaction, onSave, onCan
       amount: Number(form.amount),
       type: form.type,
       categoryId: Number(form.categoryId),
+      accountId: form.accountId ? Number(form.accountId) : null,
       date: form.date,
       paymentMethod: transaction ? transaction.payment_method : 'CASH',
       notes: transaction ? transaction.notes : null,
@@ -60,6 +62,18 @@ export default function TransactionForm({ categories, transaction, onSave, onCan
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        Account (optional)
+        <select name="accountId" value={form.accountId} onChange={handleChange}>
+          <option value="">No account</option>
+          {accounts.map((account) => (
+            <option key={account.id} value={account.id}>
+              {account.name}
             </option>
           ))}
         </select>
