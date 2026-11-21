@@ -37,6 +37,7 @@ export default function Dashboard({ onViewAll }) {
   }
   const breakdown = Object.entries(totalsByCategory)
     .map(([id, amount]) => ({
+      id,
       category: categoryById[id],
       amount,
       percent: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
@@ -125,7 +126,7 @@ export default function Dashboard({ onViewAll }) {
           ) : (
             <div className="breakdown">
               {breakdown.map((item) => (
-                <div className="breakdown-row" key={item.category ? item.category.id : 'unknown'}>
+                <div className="breakdown-row" key={item.id}>
                   <div className="breakdown-head">
                     <span>
                       <span className="dot" style={{ background: item.category ? item.category.color : '#71717a' }} />

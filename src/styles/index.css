@@ -588,3 +588,36 @@ body {
   background: #27272a;
   color: #d4d4d8;
 }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.toolbar input,
+.toolbar select {
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid #27272a;
+  background: #09090b;
+  color: #fafafa;
+  font-size: 0.85rem;
+}
+
+.toolbar input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.toolbar input:focus,
+.toolbar select:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+.result-count {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+}

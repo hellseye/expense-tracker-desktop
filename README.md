@@ -51,6 +51,10 @@ Step — Transaction Management UI (done):
   button, table (description, category, date, type, amount, edit/delete).
 - Add/edit form in a modal (`components/Modal.jsx` +
   `components/TransactionForm.jsx`), categories loaded from SQLite.
+- Search (description + notes, case-insensitive), category filter and sorting
+  (date / amount / description, asc/desc, newest first by default) — all
+  computed in React on the already-loaded rows, no extra SQL. Filters
+  combine, a result count is shown, and Clear filters resets everything.
 - Dark rounded-card design with purple accent, recreated from the reference
   in plain CSS. Empty-state message when there are no transactions.
 - The old placeholder `Home.jsx` was removed; `App.jsx` renders Transactions.
