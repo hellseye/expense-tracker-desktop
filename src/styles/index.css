@@ -470,7 +470,103 @@ body {
 
 @media (max-width: 800px) {
   .stats,
-  .dash-grid {
+  .dash-grid,
+  .cat-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.success {
+  color: #34d399;
+  font-size: 0.85rem;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.cat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #09090b;
+  border: 1px solid #27272a;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.cat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.cat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-info p {
+  margin: 0;
+}
+
+.cat-info .muted {
+  margin-top: 4px;
+  font-size: 0.75rem;
+}
+
+.cat-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-small:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.picker-label {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.icon-picker,
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.icon-picker button {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #27272a;
+  background: #09090b;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.icon-picker button.picked {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.color-picker button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.color-picker button.picked {
+  border-color: #fafafa;
 }

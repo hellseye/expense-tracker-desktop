@@ -1,8 +1,8 @@
-# Expense Tracker — Desktop
+# Ledger — Desktop
 
-A personal expense tracker rebuilt as a desktop app while learning Electron.
-Stack: **Electron + React + Vite + SQLite, plain JavaScript only** (no
-TypeScript, no ORM).
+Ledger is a personal expense tracker rebuilt as a desktop app while learning
+Electron. Stack: **Electron + React + Vite + SQLite, plain JavaScript only**
+(no TypeScript, no ORM).
 
 The original project sits in `01_reference/` (git-ignored). It is a read-only
 reference — we look at it for ideas, never modify it, and don't copy its code.
@@ -69,6 +69,22 @@ Step — Dashboard (done):
 - Verified: totals, add/edit/delete updates, zero states, and correctness
   after an Electron restart.
 
+Step — Categories Management + Ledger rename (done):
+
+- `src/pages/Categories.jsx`: card grid of all categories with emoji icon,
+  name, type badge (income/expense) and transaction count; add/edit in a
+  modal (`components/CategoryForm.jsx` with icon + color pickers); delete
+  with confirmation. Success/error feedback after every operation.
+- Categories gained a `type` column ('expense'/'income'); older databases
+  are upgraded automatically with a one-line ALTER TABLE migration.
+- Delete is disabled in the UI for categories used by transactions, and the
+  main-process handler refuses it too (friendly error + FK RESTRICT).
+- Duplicate category names are rejected with a clear message.
+- The app is now named **Ledger** (window title, nav brand, productName).
+  The data folder moved to `~/Library/Application Support/Ledger/`.
+- Verified: add/display/edit/delete, in-use protection, duplicate names,
+  and persistence across an Electron restart.
+
 ## Files
 
 ```
@@ -82,19 +98,21 @@ expense-tracker-desktop/
 │   │   ├── schema.js      creates tables and indexes (IF NOT EXISTS)
 │   │   └── seed.js        inserts the 6 default categories when empty
 │   └── handlers/
-│       └── databaseHandlers.js  ipcMain.handle: category reads + transaction CRUD
+│       └── databaseHandlers.js  ipcMain.handle: category + transaction CRUD
 ├── src/
 │   ├── assets/          images and icons (icon.svg = app icon / favicon)
 │   ├── components/      reusable UI pieces
 │   │   ├── Modal.jsx    modal shell (backdrop + card + close)
 │   │   ├── StatCard.jsx dashboard stat card (label, value, subtitle)
+│   │   ├── CategoryForm.jsx     category add/edit form (name, type, icon, color)
 │   │   └── TransactionForm.jsx  add/edit form (amount, type, category, ...)
 │   ├── pages/           one file per screen
 │   │   ├── Dashboard.jsx     totals, charts, breakdown, recent transactions
-│   │   └── Transactions.jsx  transaction table + add/edit/delete
+│   │   ├── Transactions.jsx  transaction table + add/edit/delete
+│   │   └── Categories.jsx    category cards + add/edit/delete
 │   ├── styles/
 │   │   └── index.css    global styles (dark theme, table, modal, form, charts)
-│   ├── App.jsx          top nav + page switching (Dashboard / Transactions)
+│   ├── App.jsx          top nav + page switching (Dashboard / Transactions / Categories)
 │   └── main.jsx         React entry point
 ├── scripts/
 │   └── dev.js           starts Vite, then starts Electron
@@ -125,14 +143,16 @@ npm run build    # builds the React app into dist/
 ## Database
 
 - **Library:** `better-sqlite3` — small, synchronous SQLite driver. No ORM.
-- **Location:** `~/Library/Application Support/ExpenseTracker/expense-tracker.db`
+- **Location:** `~/Library/Application Support/Ledger/expense-tracker.db`
   (Electron's `app.getPath('userData')`). User data lives outside the project
   and survives app updates and packaging. The app name is set with
-  `app.setName('ExpenseTracker')` in `electron/main.js`.
+  `app.setName('Ledger')` in `electron/main.js`.
 - **Initialization:** when Electron is ready, `main.js` calls `createTables()`,
   `seedCategories()`, `registerDatabaseHandlers()`, then opens the window.
   Every statement uses `IF NOT EXISTS` / count checks, so restarting never
-  duplicates anything.
+  duplicates anything. `schema.js` also upgrades older databases by adding
+  the categories `type` column if it is missing (PRAGMA table_info check +
+  ALTER TABLE).
 - **Rules:** all SQLite queries run in the Electron main process only. React
   never touches SQLite, and the connection is never exposed through preload.
 
@@ -140,7 +160,7 @@ Tables:
 
 | Table          | Purpose                                                        |
 | -------------- | -------------------------------------------------------------- |
-| `categories`   | id, name (unique), color, icon, created_at                     |
+| `categories`   | id, name (unique), type ('expense'/'income'), color, icon, created_at |
 | `transactions` | id, title, amount (> 0), type ('expense'/'income'), category_id → categories(id) ON DELETE RESTRICT, payment_method, date, notes, created_at |
 | `settings`     | key/value pairs (currency, theme — used in a later step)       |
 
@@ -166,7 +186,10 @@ Channels:
 
 | Channel              | Preload function                      | What it does                     |
 | -------------------- | ------------------------------------- | -------------------------------- |
-| `get-categories`     | `window.api.getCategories()`          | all categories, by id            |
+| `get-categories`     | `window.api.getCategories()`          | categories + transaction_count each |
+| `add-category`       | `window.api.addCategory(data)`        | INSERT, rejects duplicate names  |
+| `update-category`    | `window.api.updateCategory(data)`     | UPDATE by id, errors if missing  |
+| `delete-category`    | `window.api.deleteCategory(id)`       | DELETE, refuses if in use        |
 | `get-transactions`   | `window.api.getTransactions()`        | all transactions, newest first   |
 | `add-transaction`    | `window.api.addTransaction(data)`     | INSERT, returns the new id       |
 | `update-transaction` | `window.api.updateTransaction(data)`  | UPDATE by id, errors if missing  |
@@ -195,8 +218,8 @@ Safety rules:
   creates the window. While developing (`app.isPackaged` is false) it loads
   the Vite URL; a packaged app loads `dist/index.html`.
 - `electron/preload.js` runs before the page and uses `contextBridge` to
-  expose `window.desktop` (runtime info) and `window.api` (database reads +
-  transaction CRUD). `src/pages/Transactions.jsx` uses both.
+  expose `window.desktop` (runtime info) and `window.api` (category +
+  transaction CRUD). The page components use it for all data access.
 
 Security basics kept on purpose: `contextIsolation: true` and
 `nodeIntegration: false`, so the web page cannot use Node.js directly.
@@ -218,11 +241,10 @@ router, Tailwind, icon or chart libraries until a step genuinely needs them.
 
 ## Next steps
 
-1. Category CRUD (add/edit/delete categories) over the same IPC pattern.
-2. Full app layout (sidebar like the reference) replacing the simple top nav.
-3. Remaining screens: Categories, Analytics, Settings.
-4. CSV export.
-5. Package the app for macOS.
+1. Full app layout (sidebar like the reference) replacing the simple top nav.
+2. Remaining screens: Analytics, Settings.
+3. CSV export.
+4. Package the app for macOS.
 
 ## Ground rules
 

@@ -4,8 +4,8 @@ const { createTables } = require('./database/schema');
 const { seedCategories } = require('./database/seed');
 const { registerDatabaseHandlers } = require('./handlers/databaseHandlers');
 
-// userData folder name: ~/Library/Application Support/ExpenseTracker
-app.setName('ExpenseTracker');
+// userData folder name: ~/Library/Application Support/Ledger
+app.setName('Ledger');
 
 function createWindow() {
   const win = new BrowserWindow({

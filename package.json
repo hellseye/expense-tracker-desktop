@@ -5,7 +5,7 @@
         "react": "^19.3.1",
         "react-dom": "^19.3.1"
     },
-    "description": "Local-first personal expense tracker for the desktop (Electron + React, JavaScript only).",
+    "description": "Ledger — local-first personal expense tracker for the desktop (Electron + React, JavaScript only).",
     "devDependencies": {
         "@vitejs/plugin-react": "^6.3.0",
         "electron": "^45.4.1",
@@ -15,7 +15,7 @@
     "main": "electron/main.js",
     "name": "expense-tracker-desktop",
     "private": true,
-    "productName": "Expense Tracker",
+    "productName": "Ledger",
     "scripts": {
         "build": "vite build",
         "dev": "node scripts/dev.js"

@@ -7,6 +7,7 @@ function createTables() {
     CREATE TABLE IF NOT EXISTS categories (
       id         INTEGER PRIMARY KEY,
       name       TEXT NOT NULL UNIQUE,
+      type       TEXT NOT NULL DEFAULT 'expense',
       color      TEXT NOT NULL DEFAULT '#8B5CF6',
       icon       TEXT NOT NULL DEFAULT 'tag',
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -32,6 +33,12 @@ function createTables() {
     CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
     CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category_id);
   `);
+
+  // Databases created before category types existed get the new column here.
+  const columns = db.prepare('PRAGMA table_info(categories)').all();
+  if (!columns.some((column) => column.name === 'type')) {
+    db.exec("ALTER TABLE categories ADD COLUMN type TEXT NOT NULL DEFAULT 'expense'");
+  }
 }
 
 module.exports = { createTables };
