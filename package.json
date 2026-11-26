@@ -7,6 +7,7 @@
     },
     "description": "Ledger — local-first personal expense tracker for the desktop (Electron + React, JavaScript only).",
     "devDependencies": {
+        "@electron-forge/maker-dmg": "^8.0.1",
         "@vitejs/plugin-react": "^6.3.0",
         "electron": "^45.4.1",
         "vite": "^8.3.8"

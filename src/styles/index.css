@@ -621,3 +621,83 @@ body {
   margin: 0 0 8px;
   font-size: 0.78rem;
 }
+
+.highlights {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.donut-layout {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.donut {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-hole {
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  background: #18181b;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.donut-total {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.donut-caption {
+  font-size: 0.65rem;
+  color: #a1a1aa;
+}
+
+.donut-legend {
+  flex: 1;
+  min-width: 200px;
+  display: grid;
+  gap: 10px;
+}
+
+.mom {
+  display: grid;
+  gap: 10px;
+}
+
+.mom-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.mom .up,
+.mom-note.up {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.mom .down,
+.mom-note.down {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.mom-note {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 800px) {
+  .stats.highlights {
+    grid-template-columns: 1fr;
+  }
+}

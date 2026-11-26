@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Transactions from './pages/Transactions.jsx';
 import Categories from './pages/Categories.jsx';
 import Accounts from './pages/Accounts.jsx';
+import Analytics from './pages/Analytics.jsx';
 
 export default function App() {
   const [page, setPage] = useState('dashboard');
@@ -20,6 +21,9 @@ export default function App() {
         <button className={page === 'categories' ? 'active' : ''} onClick={() => setPage('categories')}>
           Categories
         </button>
+        <button className={page === 'analytics' ? 'active' : ''} onClick={() => setPage('analytics')}>
+          Analytics
+        </button>
         <button className={page === 'accounts' ? 'active' : ''} onClick={() => setPage('accounts')}>
           Accounts
         </button>
@@ -28,6 +32,7 @@ export default function App() {
       {page === 'dashboard' && <Dashboard onViewAll={() => setPage('transactions')} />}
       {page === 'transactions' && <Transactions />}
       {page === 'categories' && <Categories />}
+      {page === 'analytics' && <Analytics />}
       {page === 'accounts' && <Accounts />}
     </div>
   );
